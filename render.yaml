@@ -1,0 +1,52 @@
+services:
+  # Main Django/Daphne web service
+  - type: web
+    name: flashchat
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "daphne -b 0.0.0.0 -p $PORT config.asgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://flashchat.onrender.com"
+      - key: DB_NAME
+        fromDatabase:
+          name: flashchat-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: flashchat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: flashchat-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: flashchat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: flashchat-db
+          property: port
+      - key: REDIS_URL
+        fromService:
+          name: flashchat-redis
+          type: redis
+          property: connectionString
+
+  # Redis service
+  - type: redis
+    name: flashchat-redis
+    plan: free
+    ipAllowList: []
+
+databases:
+  # PostgreSQL database
+  - name: flashchat-db
+    plan: free
